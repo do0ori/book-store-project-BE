@@ -24,7 +24,6 @@ const getBooksByCategory = (req, res) => {
 };
 
 router.get('/', booksRequestHandler);
-
 router.get('/:bookId', getBookById);
 
 module.exports = router;

@@ -19,9 +19,7 @@ const resetPassword = (req, res) => {
 };
 
 router.post('/join', signUp);
-
 router.post('/login', signIn);
-
 router.route('/reset-password')
     .post(passwordResetRequest)
     .put(resetPassword);

@@ -16,7 +16,6 @@ const getOrderDetails = (req, res) => {
 router.route('/')
     .post(submitOrder)
     .get(getOrderList);
-
 router.get('/:orderId', getOrderDetails);
 
 module.exports = router;
