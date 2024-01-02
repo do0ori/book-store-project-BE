@@ -2,8 +2,7 @@ const conn = require('../mariadb');
 const { StatusCodes } = require('http-status-codes');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 /**
  * @param {string} rawPassword
