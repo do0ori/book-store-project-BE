@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const {
+    addToLikes,
+    removeFromLikes
+} = require('../controller/likeController');
 
-const likeBook = (req, res) => {
-    res.json("좋아요 추가");
-};
-
-const unlikeBook = (req, res) => {
-    res.json("좋아요 취소");
-};
-
-router.route('/:bookId')
-    .post(likeBook)
-    .delete(unlikeBook);
+router.post('/:bookId', addToLikes);
+router.delete('/:bookId', removeFromLikes);
 
 module.exports = router;
