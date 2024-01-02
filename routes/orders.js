@@ -4,7 +4,7 @@ const {
     submitOrder,
     getOrderList,
     getOrderDetails
-} = require('../controller/orderController');
+} = require('../controllers/orderController');
 
 router.post('/', submitOrder);
 router.get('/', getOrderList);

@@ -5,7 +5,7 @@ const {
     logIn,
     passwordResetRequest,
     resetPassword
-} = require('../controller/userController');
+} = require('../controllers/userController');
 
 router.post('/signup', signUp);
 router.post('/login', logIn);

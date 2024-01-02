@@ -3,7 +3,7 @@ const router = express.Router();
 const {
     addToLikes,
     removeFromLikes
-} = require('../controller/likeController');
+} = require('../controllers/likeController');
 
 router.post('/:bookId', addToLikes);
 router.delete('/:bookId', removeFromLikes);
