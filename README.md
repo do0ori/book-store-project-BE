@@ -1,27 +1,21 @@
 # 📖Book Store
-## ERD (Entity Relationship Diagram) 🔄️ 수정 중
+## 🔄️ERD (Entity Relationship Diagram)
 
-![ERD](/readme_src/erd.png)
+[🔗dbdigram ERD 바로가기](https://dbdiagram.io/d/Book-Store-658d66ff89dea62799ace992)
 
-## API Design
-## 👤회원 API
+- book.category_id와 category.id의 관계를 n:1로 수정
+- book의 column들 중 예약어인 것들을 다른 이름으로 변경
+    - format → form
+    - description → detail
+    - index → table_of_contents
+- user에 name, salt, created_at 추가
 
-![users_api](/readme_src/users_api.png)
+## 🔄️API Design
+[🔗API 명세 바로가기](https://do0ori.notion.site/Sprint2-Book-Store-Project-API-0fd148429624424f90a60d9d7de3d003?pvs=4)
 
-## 📖도서 API 🔄️ 수정 중
-
-(이미지는 아직 고려 X)
-
-![books_api](/readme_src/books_api.png)
-
-## ❤️좋아요 API 🔄️ 수정 중
-
-![likes_api](/readme_src/likes_api.png)
-
-## 🛒장바구니 API 🔄️ 수정 중
-
-![cart_api](/readme_src/cart_api.png)
-
-## 🛍️주문 API 🔄️ 수정 중
-
-![orders_api](/readme_src/orders_api.png)
+- 👤회원 API
+- 📖도서 API
+- 🏷️카테고리 API
+- ❤️좋아요 API
+- 🛒장바구니 API
+- 🛍️주문 API
