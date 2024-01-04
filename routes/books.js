@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {
-    booksRequestHandler,
+    getBooks,
     getBookById
 } = require('../controllers/bookController');
 
-router.get('/', booksRequestHandler);
+router.get('/', getBooks);
 router.get('/:bookId', getBookById);
 
 module.exports = router;
