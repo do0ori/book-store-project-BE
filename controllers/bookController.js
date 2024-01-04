@@ -1,8 +1,13 @@
 const conn = require('../mariadb');
 const { StatusCodes } = require('http-status-codes');
 
+/**
+ * @returns {Object}
+ * - If the request includes the query parameters "limit" and "page", the response will contain the paginated book data.
+ * - Otherwise, the response will be { "total": total length of book data }.
+ * @note "categoryId" and "recent" query parameters are optional.
+ */
 const getBooks = (req, res) => {
-    // limit과 page는 무조건 들어온다고 가정
     const { categoryId, recent, limit, page } = req.query;
 
     const conditions = {
@@ -11,14 +16,21 @@ const getBooks = (req, res) => {
     };
     const conditionClauses = Object.values(conditions).filter(Boolean);
     const whereClause = conditionClauses.length ? `WHERE ${conditionClauses.join(" AND ")}` : "";
-    const offset = limit * (page - 1);
 
-    const sql = `
-        SELECT * FROM books
-        ${whereClause}
-        LIMIT ? OFFSET ?
-    `;
-    const values = categoryId ? [categoryId, parseInt(limit), offset] : [parseInt(limit), offset];
+    let sql, values;
+    if (limit && page) {
+        const offset = limit * (page - 1);
+        sql = `
+            SELECT * FROM books
+            ${whereClause}
+            LIMIT ? OFFSET ?
+        `;
+        values = categoryId ? [categoryId, parseInt(limit), offset] : [parseInt(limit), offset];
+    } else {
+        sql = `SELECT COUNT(*) AS total FROM books ${whereClause}`;
+        values = categoryId ? [categoryId] : [];
+    }
+
     conn.query(
         sql, values,
         (err, results) => {
