@@ -9,6 +9,7 @@
     - description → detail
     - index → table_of_contents
 - user에 name, salt, created_at 추가
+- book의 liked column 삭제 → 도서 조회 시 query로 like table에서 계산해서 반환
 
 ## 🔄️API Design
 [🔗API 명세 바로가기](https://do0ori.notion.site/Sprint2-Book-Store-Project-API-0fd148429624424f90a60d9d7de3d003?pvs=4)
