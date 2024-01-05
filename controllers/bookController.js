@@ -8,6 +8,7 @@ const { StatusCodes } = require('http-status-codes');
  * @note "categoryId" and "recent" query parameters are optional.
  */
 const getBooks = (req, res) => {
+    const { userId } = req.body;
     const { categoryId, recent, limit, page } = req.query;
 
     const conditions = {
@@ -21,11 +22,15 @@ const getBooks = (req, res) => {
     if (limit && page) {
         const offset = limit * (page - 1);
         sql = `
-            SELECT * FROM books
+            SELECT
+                *,
+                (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS like_count,
+                EXISTS(SELECT * FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+            FROM books
             ${whereClause}
             LIMIT ? OFFSET ?
         `;
-        values = categoryId ? [categoryId, parseInt(limit), offset] : [parseInt(limit), offset];
+        values = categoryId ? [userId, categoryId, parseInt(limit), offset] : [userId, parseInt(limit), offset];
     } else {
         sql = `SELECT COUNT(*) AS total FROM books ${whereClause}`;
         values = categoryId ? [categoryId] : [];
@@ -49,16 +54,23 @@ const getBooks = (req, res) => {
 };
 
 const getBookById = (req, res) => {
+    const { userId } = req.body;
     const { bookId } = req.params;
 
     const sql = `
-        SELECT books.*, category.name AS category_name
-        FROM books LEFT JOIN category
+        SELECT
+            books.*,
+            category.name AS category_name,
+            (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS like_count,
+            EXISTS(SELECT * FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+        FROM books
+        LEFT JOIN category
         ON books.category_id = category.id
         WHERE books.id = ?
     `;
+    const values = [userId, bookId];
     conn.query(
-        sql, bookId,
+        sql, values,
         (err, results) => {
             if (err) {
                 console.log(err);
