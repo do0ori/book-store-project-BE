@@ -4,8 +4,8 @@ const { StatusCodes } = require('http-status-codes');
 const addToCart = (req, res) => {
     const { userId, bookId, quantity } = req.body;
 
-    const sql = "INSERT INTO cart (user_id, book_id, quantity) VALUES (?, ?, ?)";
-    const values = [userId, bookId, quantity];
+    let sql = "SELECT EXISTS (SELECT 1 FROM cart WHERE user_id = ? AND book_id = ?) AS item_exists";
+    let values = [userId, bookId];
     conn.query(
         sql, values,
         (err, results) => {
@@ -13,10 +13,43 @@ const addToCart = (req, res) => {
                 console.log(err);
                 return res.status(StatusCodes.BAD_REQUEST).end();
             }
+            
+            if (results[0].item_exists) {
+                sql = "UPDATE cart SET quantity = quantity + ? WHERE user_id = ? AND book_id = ?";
+                values = [quantity, userId, bookId];
+                conn.query(
+                    sql, values,
+                    (err, results) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(StatusCodes.BAD_REQUEST).end();
+                        }
 
-            return res.status(StatusCodes.CREATED).json(results);
+                        if (results.affectedRows == 0) {
+                            return res.status(StatusCodes.BAD_REQUEST).end();
+                        } else {
+                            return res.status(StatusCodes.OK).json(results);
+                        }
+                    }
+                );
+            } else {
+                sql = "INSERT INTO cart (user_id, book_id, quantity) VALUES (?, ?, ?)";
+                values = [userId, bookId, quantity];
+                conn.query(
+                    sql, values,
+                    (err, results) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(StatusCodes.BAD_REQUEST).end();
+                        }
+
+                        return res.status(StatusCodes.CREATED).json(results);
+                    }
+                );
+            }
         }
     );
+
 };
 
 const getCartItems = (req, res) => {

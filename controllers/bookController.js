@@ -25,7 +25,7 @@ const getBooks = (req, res) => {
             SELECT
                 *,
                 (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS like_count,
-                EXISTS(SELECT * FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+                EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
             FROM books
             ${whereClause}
             LIMIT ? OFFSET ?
@@ -62,7 +62,7 @@ const getBookById = (req, res) => {
             books.*,
             category.name AS category_name,
             (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS like_count,
-            EXISTS(SELECT * FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+            EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
         FROM books
         LEFT JOIN category
         ON books.category_id = category.id
