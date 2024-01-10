@@ -49,7 +49,6 @@ const addToCart = (req, res) => {
             }
         }
     );
-
 };
 
 const getCartItems = (req, res) => {
