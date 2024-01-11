@@ -1,4 +1,4 @@
-const pool = require('./db');
+const pool = require('../db');
 
 const getConnection = async (req, res, next) => {
     try {
