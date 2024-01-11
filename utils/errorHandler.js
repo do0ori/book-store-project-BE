@@ -1,33 +1,26 @@
-const { StatusCodes } = require('http-status-codes');
+const { StatusCodes, getReasonPhrase } = require('http-status-codes');
 
-class CustomError extends Error {
-    constructor(message, statusCode) {
-        super(message);
-        this.name = "CustomError";
+class HttpError extends Error {
+    constructor(statusCode, message) {
+        super(message || getReasonPhrase(statusCode));
+        this.name = "HttpError";
         this.statusCode = statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
     }
 }
 
-class NotFoundError extends CustomError {
-    constructor(message) {
-        super(message || "Not Found");
-        this.name = "NotFoundError";
-        this.statusCode = StatusCodes.NOT_FOUND;
-    }
-}
-
 const errorHandler = (err, req, res, next) => {
-    if (err instanceof CustomError) {
-        res.status(err.statusCode).json({ error: err.message });
+    if (req.connection) {
+        req.connection.release();
+    }
+    if (err instanceof HttpError) {
+        res.status(err.statusCode).json({ message: err.message });
     } else {
-        console.error(err.stack);
-        if (req.connection) {
-            req.connection.release();
-        }
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Something went wrong!");
+        console.error(`>> ${new Date().toLocaleString()}\n${err.stack}`);
+        res.status(StatusCodes.BAD_REQUEST).send({ message: "Something went wrong!" });
     }
 };
 
 module.exports = {
+    HttpError,
     errorHandler
 };
