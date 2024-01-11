@@ -15,11 +15,26 @@
 - delivery Table을 만들어서 delivery 정보를 따로 저장
 
 ## 🔄️API Design
-[🔗API 명세 바로가기](https://do0ori.notion.site/Sprint2-Book-Store-Project-API-0fd148429624424f90a60d9d7de3d003?pvs=4)
+[🔗API 명세 바로가기](https://do0ori.notion.site/0787440aa79f4091902a0d4eadb5c009?v=1f96b9f02a704ea88a75567746da1499&pvs=4)
 
 - 👤회원 API
+    - 회원가입
+    - 로그인
+    - 비밀번호 초기화 요청
+    - 비밀번호 초기화
 - 📖도서 API
+    - 도서 조회
+    - 도서 목록 길이 조회
+    - 개별 도서 조회
 - 🏷️카테고리 API
+    - 카테고리 전체 조회
 - ❤️좋아요 API
+    - 좋아요 추가
+    - 좋아요 취소
 - 🛒장바구니 API
+    - 장바구니 담기
+    - (선택한) 장바구니 목록 조회
 - 🛍️주문 API
+    - 결제(주문)하기
+    - 주문 내역 조회
+    - 주문 상세 상품 조회
