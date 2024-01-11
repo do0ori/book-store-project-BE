@@ -1,60 +1,97 @@
-const conn = require('../mariadb');
+const { HttpError } = require('../utils/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 
 // 나중에 transaction으로
-const submitOrder = (req, res) => {
-    const { userId, items, delivery, totalQuantity, totalPrice, firstBookTitle } = req.body;
+const submitOrder = async (req, res, next) => {
+    try {
+        const { userId, items, delivery, totalQuantity, totalPrice, firstBookTitle } = req.body;
 
-    let sql = "INSERT INTO delivery (address, recipient, contact) VALUES (?, ?, ?)";
-    let values = [delivery.address, delivery.recipient, delivery.contact];
-    conn.query(
-        sql, values,
-        (err, results) => {
-            if (err) {
-                console.log(err);
-                return res.status(StatusCodes.BAD_REQUEST).end();
-            }
-
-            const delivery_id = results.insertId;
-
-            sql = "INSERT INTO orders (user_id, delivery_id, book_title, total_quantity, total_price) VALUES (?, ?, ?, ?, ?)";
-            values = [userId, delivery_id, firstBookTitle, totalQuantity, totalPrice];
-            conn.query(
-                sql, values,
-                (err, results) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(StatusCodes.BAD_REQUEST).end();
-                    }
+        let sql = "INSERT INTO delivery (address, recipient, contact) VALUES (?, ?, ?)";
+        let values = [delivery.address, delivery.recipient, delivery.contact];
+        let [result] = await req.connection.query(sql, values);
+    
+        const delivery_id = result.insertId;
+    
+        sql = "INSERT INTO orders (user_id, delivery_id, book_title, total_quantity, total_price) VALUES (?, ?, ?, ?, ?)";
+        values = [userId, delivery_id, firstBookTitle, totalQuantity, totalPrice];
+        [result] = await req.connection.query(sql, values);
+    
+        const order_id = result.insertId;
+    
+        sql = "INSERT INTO ordered_book (order_id, book_id, quantity) VALUES ?";
+        values = [];
+        items.forEach((item) => values.push([order_id, item.bookId, item.quantity]));
+        [result] = await req.connection.query(sql, [values]);
         
-                    const order_id = results.insertId;
+        sql = "DELETE FROM cart WHERE item_id IN (?)";
+        values = [items.map(item => item.cartItemId)];
+        [result] = await req.connection.query(sql, values);
 
-                    sql = "INSERT INTO ordered_book (order_id, book_id, quantity) VALUES ?";
-                    values = [];
-                    items.forEach((item) => values.push([order_id, item.bookId, item.quantity]));
-                    conn.query(
-                        sql, [values],
-                        (err, results) => {
-                            if (err) {
-                                console.log(err);
-                                return res.status(StatusCodes.BAD_REQUEST).end();
-                            }
-                
-                            return res.status(StatusCodes.CREATED).json(results);
-                        }
-                    );
-                }
-            );
+        if (result.affectedRows) {
+            res.status(StatusCodes.OK).json(result);
+        } else {
+            throw new HttpError(StatusCodes.BAD_REQUEST);
         }
-    );
+        next();
+    } catch (error) {
+        next(error);
+    }
 };
 
-const getOrderList = (req, res) => {
-    res.json("주문 목록(내역) 조회");
+const getOrderList = async (req, res, next) => {
+    try {
+        const { userId } = req.body;
+
+        const sql = `
+            SELECT
+                orders.id AS order_id,
+                ordered_at,
+                address,
+                recipient,
+                contact,
+                book_title,
+                total_quantity,
+                total_price
+            FROM orders
+            LEFT JOIN delivery
+            ON orders.delivery_id = delivery.id
+            WHERE user_id = ?
+        `;
+        const [rows] = await req.connection.query(sql, userId);
+
+        res.status(StatusCodes.OK).json(rows);
+        next();
+    } catch (error) {
+        next(error);
+    }
 };
 
-const getOrderDetails = (req, res) => {
-    res.json("주문 상세 상품 조회");
+const getOrderDetails = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+
+        const sql = `
+            SELECT
+                book_id,
+                title,
+                author,
+                price,
+                quantity
+            FROM ordered_book
+            LEFT JOIN books
+            ON ordered_book.book_id = books.id
+            WHERE order_id = ?
+        `;
+        const [rows] = await req.connection.query(sql, orderId);
+        if (rows.length) {
+            res.status(StatusCodes.OK).json(rows);
+        } else {
+            throw new HttpError(StatusCodes.NOT_FOUND, "존재하지 않는 주문입니다.");
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
 };
 
 module.exports = {
