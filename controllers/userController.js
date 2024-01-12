@@ -23,7 +23,7 @@ const signUp = async (req, res, next) => {
         const { email, password } = req.body;
 
         const { salt, hashedPassword } = encryptPassword(password);
-    
+
         const sql = "INSERT INTO users (email, password, salt) VALUES (?, ?, ?)";
         const values = [email, hashedPassword, salt];
         [result] = await req.connection.query(sql, values);
@@ -47,15 +47,14 @@ const logIn = async (req, res, next) => {
         if (loginUser && loginUser.password == hashedPassword) {
             // JWT 발행
             const token = jwt.sign({
-                id: loginUser.id,
+                uid: loginUser.id,
                 email: loginUser.email
             }, process.env.PRIVATE_KEY, {
-                expiresIn: '5m',
-                issuer: "do0ori"
+                expiresIn: process.env.TOKEN_LIFETIME,
+                issuer: process.env.ISSUER
             });
             res.cookie("token", token, { httpOnly: true }); // httpOnly: 웹서버에 의해서만(API로만) access 가능하도록 설정
-            console.log(token); // token 확인용
-    
+
             res.status(StatusCodes.OK).end();
         } else {
             throw new HttpError(StatusCodes.UNAUTHORIZED);
@@ -72,7 +71,7 @@ const passwordResetRequest = async (req, res, next) => {
 
         const sql = "SELECT * FROM users WHERE email = ?";
         const [rows] = await req.connection.query(sql, email);
-    
+
         const user = rows[0];
         if (user) {
             res.status(StatusCodes.OK).json({ email });
@@ -88,13 +87,13 @@ const passwordResetRequest = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-    
+
         const { salt, hashedPassword } = encryptPassword(password);
-    
+
         const sql = "UPDATE users SET password = ?, salt = ? WHERE email = ?";
         const values = [hashedPassword, salt, email];
         const [result] = await req.connection.query(sql, values);
-    
+
         if (result.affectedRows) {
             res.status(StatusCodes.OK).json(result);
         } else {

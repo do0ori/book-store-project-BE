@@ -3,12 +3,13 @@ const { StatusCodes } = require('http-status-codes');
 
 const addToCart = async (req, res, next) => {
     try {
-        const { userId, bookId, quantity } = req.body;
+        const userId = req.decodedToken.uid;
+        const { bookId, quantity } = req.body;
 
         let sql = "SELECT EXISTS (SELECT 1 FROM cart WHERE user_id = ? AND book_id = ?) AS item_exists";
         let values = [userId, bookId];
         const [rows] = await req.connection.query(sql, values);
-        
+
         if (rows[0].item_exists) {
             sql = "UPDATE cart SET quantity = quantity + ? WHERE user_id = ? AND book_id = ?";
             values = [quantity, userId, bookId];
@@ -34,7 +35,7 @@ const addToCart = async (req, res, next) => {
 
 const getCartItems = async (req, res, next) => {
     try {
-        const { userId, selected } = req.body;
+        const { selected } = req.body;
 
         let sql = `
             SELECT
@@ -49,13 +50,13 @@ const getCartItems = async (req, res, next) => {
             ON cart.book_id = books.id
             WHERE user_id = ?
         `;
-        const values = [userId];
+        const values = [req.decodedToken.uid];
         if (selected) {
             sql += "AND item_id IN (?)";
             values.push(selected);
         }
         let [rows] = await req.connection.query(sql, values);
-        
+
         res.status(StatusCodes.OK).json(rows);
         next();
     } catch (error) {
@@ -69,7 +70,7 @@ const removeFromCart = async (req, res, next) => {
 
         const sql = "DELETE FROM cart WHERE item_id = ?";
         const [result] = await req.connection.query(sql, itemId);
-    
+
         if (result.affectedRows) {
             res.status(StatusCodes.OK).json(result);
         } else {
