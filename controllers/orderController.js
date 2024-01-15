@@ -42,14 +42,14 @@ const getOrderList = async (req, res, next) => {
     try {
         const sql = `
             SELECT
-                orders.id AS order_id,
-                ordered_at,
+                orders.id AS orderId,
+                ordered_at AS orderedAt,
                 address,
                 recipient,
                 contact,
-                book_title,
-                total_quantity,
-                total_price
+                book_title AS bookTitle,
+                total_quantity AS totalQuantity,
+                total_price AS totalPrice
             FROM orders
             LEFT JOIN delivery
             ON orders.delivery_id = delivery.id
@@ -70,7 +70,7 @@ const getOrderDetails = async (req, res, next) => {
 
         const sql = `
             SELECT
-                book_id,
+                book_id AS bookId,
                 title,
                 author,
                 price,
@@ -81,6 +81,7 @@ const getOrderDetails = async (req, res, next) => {
             WHERE order_id = ?
         `;
         const [rows] = await req.connection.query(sql, orderId);
+        
         if (rows.length) {
             res.status(StatusCodes.OK).json(rows);
         } else {

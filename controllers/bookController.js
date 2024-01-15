@@ -15,15 +15,20 @@ const getBooks = async (req, res, next) => {
 
         const offset = limit * (page - 1);
         let sql = `
-            SELECT SQL_CALC_FOUND_ROWS
-                *,
-                (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS like_count,
+            SELECT
+                id, title, form, isbn, summary, detail, author, price,
+                image_id AS imageId,
+                category_id AS categoryId,
+                page_count AS pages,
+                table_of_contents AS tableOfContents,
+                published_date AS publishedDate,
+                (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
                 EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
             FROM books
             ${whereClause}
             LIMIT ? OFFSET ?
         `;
-        const values = categoryId ? [userId, categoryId, parseInt(limit), offset] : [userId, parseInt(limit), offset];
+        let values = categoryId ? [userId, categoryId, parseInt(limit), offset] : [userId, parseInt(limit), offset];
         const [rows] = await req.connection.query(sql, values);
         
         let data = {};
@@ -33,8 +38,9 @@ const getBooks = async (req, res, next) => {
             throw new HttpError(StatusCodes.NOT_FOUND, "존재하지 않는 페이지입니다.");
         }
         
-        sql = `SELECT FOUND_ROWS() AS total`;
-        const [result] = await req.connection.query(sql);
+        sql = `SELECT COUNT(*) AS total FROM books ${whereClause}`;
+        values = categoryId ? [categoryId] : [];
+        const [result] = await req.connection.query(sql, values);
 
         data.pagination = {
             currentPage: parseInt(page),
@@ -54,9 +60,14 @@ const getBookById = async (req, res, next) => {
 
         const sql = `
             SELECT
-                books.*,
-                category.name AS category_name,
-                (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS like_count,
+                books.id AS bookId,
+                title, form, isbn, summary, detail, author, price,
+                image_id AS imageId,
+                page_count AS pages,
+                table_of_contents AS tableOfContents,
+                published_date AS publishedDate,
+                category.name AS categoryName,
+                (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
                 EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
             FROM books
             LEFT JOIN category

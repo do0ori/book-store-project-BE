@@ -23,8 +23,8 @@ const getCartItems = async (req, res, next) => {
 
         let sql = `
             SELECT
-                item_id,
-                id AS book_id,
+                item_id AS itemId,
+                books.id AS bookId,
                 title,
                 summary,
                 quantity,
