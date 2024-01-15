@@ -1,37 +1,28 @@
 const { HttpError } = require('../utils/errorHandler');
 const { StatusCodes } = require('http-status-codes');
+const { executeHandler } = require('../utils/handlerWrapper');
 
-const addToLikes = async (req, res, next) => {
-    try {
-        const sql = "INSERT INTO likes (user_id, book_id) VALUES (?, ?)";
-        const values = [req.decodedToken.uid, req.params.bookId];
-        const [result] = await req.connection.query(sql, values);
+const addToLikes = async (req, res) => {
+    const sql = "INSERT INTO likes (user_id, book_id) VALUES (?, ?)";
+    const values = [req.decodedToken.uid, req.params.bookId];
+    const [result] = await req.connection.query(sql, values);
 
-        res.status(StatusCodes.CREATED).json(result);
-        next();
-    } catch (error) {
-        next(error);
-    }
+    res.status(StatusCodes.CREATED).json(result);
 };
 
-const removeFromLikes = async (req, res, next) => {
-    try {
-        const sql = "DELETE FROM likes WHERE user_id = ? AND book_id = ?";
-        const values = [req.decodedToken.uid, req.params.bookId];
-        const [result] = await req.connection.query(sql, values);
+const removeFromLikes = async (req, res) => {
+    const sql = "DELETE FROM likes WHERE user_id = ? AND book_id = ?";
+    const values = [req.decodedToken.uid, req.params.bookId];
+    const [result] = await req.connection.query(sql, values);
 
-        if (result.affectedRows) {
-            res.status(StatusCodes.OK).json(result);
-        } else {
-            throw new HttpError(StatusCodes.BAD_REQUEST);
-        }
-        next();
-    } catch (error) {
-        next(error);
+    if (result.affectedRows) {
+        res.status(StatusCodes.OK).json(result);
+    } else {
+        throw new HttpError(StatusCodes.BAD_REQUEST);
     }
 };
 
 module.exports = {
-    addToLikes,
-    removeFromLikes
+    addToLikes: executeHandler(addToLikes),
+    removeFromLikes: executeHandler(removeFromLikes)
 };
