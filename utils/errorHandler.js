@@ -1,4 +1,5 @@
 const { StatusCodes, getReasonPhrase } = require('http-status-codes');
+const { TokenExpiredError, JsonWebTokenError, NotBeforeError } = require('jsonwebtoken');
 
 class HttpError extends Error {
     constructor(statusCode, message) {
@@ -14,6 +15,8 @@ const errorHandler = (err, req, res, next) => {
     }
     if (err instanceof HttpError) {
         res.status(err.statusCode).json({ message: err.message });
+    } else if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError || err instanceof NotBeforeError) {
+        res.status(StatusCodes.UNAUTHORIZED).send({ message: err.message });
     } else {
         console.error(`>> ${new Date().toLocaleString()}\n${err.stack}`);
         res.status(StatusCodes.BAD_REQUEST).send({ message: "Something went wrong!" });

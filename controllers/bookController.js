@@ -9,16 +9,16 @@ const { StatusCodes } = require('http-status-codes');
  */
 const getBooks = async (req, res, next) => {
     try {
-        const { userId } = req.body;
+        const userId = req.decodedToken?.uid;
         const { categoryId, recent, limit, page } = req.query;
-    
+
         const conditions = {
             category: categoryId ? "category_id = ?" : null,
             recent: recent === "true" ? "published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()" : null
         };
         const conditionClauses = Object.values(conditions).filter(Boolean);
         const whereClause = conditionClauses.length ? `WHERE ${conditionClauses.join(" AND ")}` : "";
-    
+
         let sql, values;
         if (limit && page) {
             const offset = limit * (page - 1);
@@ -37,7 +37,7 @@ const getBooks = async (req, res, next) => {
             values = categoryId ? [categoryId] : [];
         }
         const [rows] = await req.connection.query(sql, values);
-    
+
         if (rows.length) {
             res.status(StatusCodes.OK).json(rows);
         } else {
@@ -51,9 +51,9 @@ const getBooks = async (req, res, next) => {
 
 const getBookById = async (req, res, next) => {
     try {
-        const { userId } = req.body;
+        const userId = req.decodedToken?.uid;
         const { bookId } = req.params;
-    
+
         const sql = `
             SELECT
                 books.*,
