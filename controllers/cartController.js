@@ -6,27 +6,11 @@ const addToCart = async (req, res, next) => {
         const userId = req.decodedToken.uid;
         const { bookId, quantity } = req.body;
 
-        let sql = "SELECT EXISTS (SELECT 1 FROM cart WHERE user_id = ? AND book_id = ?) AS item_exists";
-        let values = [userId, bookId];
-        const [rows] = await req.connection.query(sql, values);
+        const sql = "INSERT INTO cart (user_id, book_id, quantity) VALUES (?, ?, ?)";
+        const values = [userId, bookId, quantity];
+        const [result] = await req.connection.query(sql, values);
 
-        if (rows[0].item_exists) {
-            sql = "UPDATE cart SET quantity = quantity + ? WHERE user_id = ? AND book_id = ?";
-            values = [quantity, userId, bookId];
-            const [result] = await req.connection.query(sql, values);
-
-            if (result.affectedRows) {
-                res.status(StatusCodes.OK).json(result);
-            } else {
-                throw new HttpError(StatusCodes.BAD_REQUEST);
-            }
-        } else {
-            sql = "INSERT INTO cart (user_id, book_id, quantity) VALUES (?, ?, ?)";
-            values = [userId, bookId, quantity];
-            const [result] = await req.connection.query(sql, values);
-
-            res.status(StatusCodes.CREATED).json(result);
-        }
+        res.status(StatusCodes.CREATED).json(result);
         next();
     } catch (error) {
         next(error);
