@@ -7,6 +7,19 @@ const executeHandler = (handler) => async (req, res, next) => {
     }
 }
 
+const transactionExecuteHandler = (handler) => async (req, res, next) => {
+    try {
+        await req.connection.beginTransaction();
+        await handler(req, res);
+        await req.connection.commit();
+        next();
+    } catch (error) {
+        await req.connection.rollback();
+        next(error);
+    }
+}
+
 module.exports = {
-    executeHandler
+    executeHandler,
+    transactionExecuteHandler
 };

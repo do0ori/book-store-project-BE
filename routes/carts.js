@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../utils/tokenVerification');
+const validator = require('../utils/validation');
 const {
     addToCart,
     getCartItems,
@@ -8,8 +9,8 @@ const {
 } = require('../controllers/cartController');
 
 router.use(verifyToken(authMode = 'hard'));
-router.post('/', addToCart);
-router.get('/', getCartItems);
-router.delete('/:itemId', removeFromCart);
+router.post('/', validator.addToCart, addToCart);
+router.get('/', validator.getCartItems, getCartItems);
+router.delete('/:itemId', validator.removeFromCart, removeFromCart);
 
 module.exports = router;
