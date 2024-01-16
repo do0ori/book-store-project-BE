@@ -1,22 +1,15 @@
 const pool = require('../db');
+const { executeHandler } = require('../utils/handlerWrapper');
 
-const getConnection = async (req, res, next) => {
-    try {
-        req.connection = await pool.getConnection();
-        next();
-    } catch (error) {
-        next(error);
-    }
+const getConnection = async (req, res) => {
+    req.connection = await pool.getConnection();
 };
 
-const releaseConnection = (req, res, next) => {
-    if (req.connection) {
-        req.connection.release();
-    }
-    next();
+const releaseConnection = async (req, res) => {
+    await req.connection.release();
 };
 
 module.exports = {
-    getConnection,
-    releaseConnection,
+    getConnection: executeHandler(getConnection),
+    releaseConnection: executeHandler(releaseConnection),
 };

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
 const { HttpError } = require('./errorHandler');
+const { executeHandler } = require('../utils/handlerWrapper');
 require('dotenv').config();
 
 /**
@@ -13,29 +14,23 @@ const verifyToken = (authMode = 'hard') => {
         throw new Error(`Invalid authentication mode '${authMode}'. Allowed modes are ${allowedModes.join(', ')}.`);
     }
 
-    return (req, res, next) => {
-        try {
-            // Authorization: Bearer <token>
-            const AuthHeader = req.headers.authorization;
+    return executeHandler(async (req, res) => {
+        // Authorization: Bearer <token>
+        const authHeader = req.headers.authorization;
 
-            if (!AuthHeader) {
-                if (authMode === 'hard') {
-                    throw new HttpError(StatusCodes.UNAUTHORIZED, 'Token does not exist in Authorization header.');
-                } else if (authMode === 'soft') {
-                    next();
-                    return;
-                }
+        if (!authHeader) {
+            if (authMode === 'hard') {
+                throw new HttpError(StatusCodes.UNAUTHORIZED, 'Token does not exist in Authorization header.');
+            } else if (authMode === 'soft') {
+                return;
             }
-
-            const token = AuthHeader.split(' ')[1];
-
-            const decoded = jwt.verify(token, process.env.PRIVATE_KEY, { ignoreExpiration: false });
-            req.decodedToken = decoded;
-            next();
-        } catch (error) {
-            next(error);
         }
-    };
+
+        const token = authHeader.split(' ')[1];
+
+        const decoded = jwt.verify(token, process.env.PRIVATE_KEY, { ignoreExpiration: false });
+        req.decodedToken = decoded;
+    });
 };
 
 module.exports = verifyToken;
