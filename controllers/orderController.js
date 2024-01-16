@@ -1,8 +1,7 @@
 const { HttpError } = require('../utils/errorHandler');
 const { StatusCodes } = require('http-status-codes');
-const { executeHandler } = require('../utils/handlerWrapper');
+const { executeHandler, transactionExecuteHandler } = require('../utils/handlerWrapper');
 
-// 나중에 transaction으로
 const submitOrder = async (req, res) => {
     const { items, delivery, totalQuantity, totalPrice, firstBookTitle } = req.body;
 
@@ -80,7 +79,7 @@ const getOrderDetails = async (req, res) => {
 };
 
 module.exports = {
-    submitOrder: executeHandler(submitOrder),
+    submitOrder: transactionExecuteHandler(submitOrder),
     getOrderList: executeHandler(getOrderList),
     getOrderDetails: executeHandler(getOrderDetails)
 };
