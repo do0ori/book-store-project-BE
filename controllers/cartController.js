@@ -1,6 +1,6 @@
-const { HttpError } = require('../utils/errorHandler');
+const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
-const { executeHandler } = require('../utils/handlerWrapper');
+const { executeHandler } = require('../middlewares/handlerWrapper');
 
 const addToCart = async (req, res) => {
     const userId = req.decodedToken.uid;

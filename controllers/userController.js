@@ -1,6 +1,6 @@
-const { HttpError } = require('../utils/errorHandler');
+const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
-const { executeHandler } = require('../utils/handlerWrapper');
+const { executeHandler } = require('../middlewares/handlerWrapper');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();

@@ -1,6 +1,6 @@
-const { HttpError } = require('../utils/errorHandler');
+const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
-const { executeHandler, transactionExecuteHandler } = require('../utils/handlerWrapper');
+const { executeHandler, transactionExecuteHandler } = require('../middlewares/handlerWrapper');
 
 const submitOrder = async (req, res) => {
     const { items, delivery, totalQuantity, totalPrice, firstBookTitle } = req.body;

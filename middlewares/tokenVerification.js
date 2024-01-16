@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
 const { HttpError } = require('./errorHandler');
-const { executeHandler } = require('../utils/handlerWrapper');
+const { executeHandler } = require('../middlewares/handlerWrapper');
 require('dotenv').config();
 
 /**

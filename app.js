@@ -13,10 +13,10 @@ const orderRouter = require('./routes/orders');
 const {
     getConnection,
     releaseConnection,
-} = require('./utils/connectionPoolHandler');
+} = require('./middlewares/connectionPoolHandler');
 const {
     errorHandler
-} = require('./utils/errorHandler');
+} = require('./middlewares/errorHandler');
 
 app.use(express.json());
 app.use(getConnection);

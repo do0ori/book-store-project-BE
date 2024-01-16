@@ -1,6 +1,6 @@
-const { HttpError } = require('../utils/errorHandler');
+const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
-const { executeHandler } = require('../utils/handlerWrapper');
+const { executeHandler } = require('../middlewares/handlerWrapper');
 
 const getAllCategory = async (req, res) => {
     const sql = "SELECT * FROM category";

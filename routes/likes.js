@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../utils/tokenVerification');
-const validator = require('../utils/validation');
+const verifyToken = require('../middlewares/tokenVerification');
+const validator = require('../middlewares/validation');
 const {
     addToLikes,
     removeFromLikes

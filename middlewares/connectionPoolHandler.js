@@ -1,5 +1,5 @@
 const pool = require('../db');
-const { executeHandler } = require('../utils/handlerWrapper');
+const { executeHandler } = require('../middlewares/handlerWrapper');
 
 const getConnection = async (req, res) => {
     req.connection = await pool.getConnection();

@@ -1,5 +1,5 @@
 const { body, param, query, validationResult } = require('express-validator');
-const { HttpError } = require('../utils/errorHandler');
+const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 
 /**
