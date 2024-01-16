@@ -9,17 +9,17 @@ const submitOrder = async (req, res) => {
     let values = [delivery.address, delivery.recipient, delivery.contact];
     let [result] = await req.connection.query(sql, values);
 
-    const delivery_id = result.insertId;
+    const deliveryId = result.insertId;
 
     sql = "INSERT INTO orders (user_id, delivery_id, book_title, total_quantity, total_price) VALUES (?, ?, ?, ?, ?)";
-    values = [req.decodedToken.uid, delivery_id, firstBookTitle, totalQuantity, totalPrice];
+    values = [req.decodedToken.uid, deliveryId, firstBookTitle, totalQuantity, totalPrice];
     [result] = await req.connection.query(sql, values);
 
-    const order_id = result.insertId;
+    const orderId = result.insertId;
 
     sql = "INSERT INTO ordered_book (order_id, book_id, quantity) VALUES ?";
     values = [];
-    items.forEach((item) => values.push([order_id, item.bookId, item.quantity]));
+    items.forEach((item) => values.push([orderId, item.bookId, item.quantity]));
     [result] = await req.connection.query(sql, [values]);
 
     sql = "DELETE FROM cart WHERE item_id IN (?)";
