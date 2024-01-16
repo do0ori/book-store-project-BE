@@ -1,5 +1,6 @@
 const { HttpError } = require('../utils/errorHandler');
 const { StatusCodes } = require('http-status-codes');
+const { executeHandler } = require('../utils/handlerWrapper');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -18,96 +19,76 @@ const encryptPassword = (rawPassword, salt = null) => {
     return { salt, hashedPassword };
 };
 
-const signUp = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
+const signUp = async (req, res) => {
+    const { email, password } = req.body;
 
-        const { salt, hashedPassword } = encryptPassword(password);
+    const { salt, hashedPassword } = encryptPassword(password);
 
-        const sql = "INSERT INTO users (email, password, salt) VALUES (?, ?, ?)";
-        const values = [email, hashedPassword, salt];
-        [result] = await req.connection.query(sql, values);
+    const sql = "INSERT INTO users (email, password, salt) VALUES (?, ?, ?)";
+    const values = [email, hashedPassword, salt];
+    [result] = await req.connection.query(sql, values);
 
-        res.status(StatusCodes.CREATED).json(result);
-        next();
-    } catch (error) {
-        next(error);
+    res.status(StatusCodes.CREATED).json(result);
+};
+
+const logIn = async (req, res) => {
+    const { email, password } = req.body;
+
+    const sql = "SELECT * FROM users WHERE email = ?";
+    const [rows] = await req.connection.query(sql, email);
+
+    const loginUser = rows[0];
+    const { hashedPassword } = encryptPassword(password, loginUser?.salt);
+    if (loginUser && loginUser.password == hashedPassword) {
+        // JWT 발행
+        const token = jwt.sign({
+            uid: loginUser.id,
+            email: loginUser.email
+        }, process.env.PRIVATE_KEY, {
+            expiresIn: process.env.TOKEN_LIFETIME,
+            issuer: process.env.ISSUER
+        });
+        res.cookie("token", token, { httpOnly: true }); // httpOnly: 웹서버에 의해서만(API로만) access 가능하도록 설정
+
+        res.status(StatusCodes.OK).end();
+    } else {
+        throw new HttpError(StatusCodes.UNAUTHORIZED);
     }
 };
 
-const logIn = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
+const passwordResetRequest = async (req, res) => {
+    const { email } = req.body;
 
-        const sql = "SELECT * FROM users WHERE email = ?";
-        const [rows] = await req.connection.query(sql, email);
+    const sql = "SELECT * FROM users WHERE email = ?";
+    const [rows] = await req.connection.query(sql, email);
 
-        const loginUser = rows[0];
-        const { hashedPassword } = encryptPassword(password, loginUser?.salt);
-        if (loginUser && loginUser.password == hashedPassword) {
-            // JWT 발행
-            const token = jwt.sign({
-                uid: loginUser.id,
-                email: loginUser.email
-            }, process.env.PRIVATE_KEY, {
-                expiresIn: process.env.TOKEN_LIFETIME,
-                issuer: process.env.ISSUER
-            });
-            res.cookie("token", token, { httpOnly: true }); // httpOnly: 웹서버에 의해서만(API로만) access 가능하도록 설정
-
-            res.status(StatusCodes.OK).end();
-        } else {
-            throw new HttpError(StatusCodes.UNAUTHORIZED);
-        }
-        next();
-    } catch (error) {
-        next(error);
+    const user = rows[0];
+    if (user) {
+        res.status(StatusCodes.OK).json({ email });
+    } else {
+        throw new HttpError(StatusCodes.UNAUTHORIZED);
     }
 };
 
-const passwordResetRequest = async (req, res, next) => {
-    try {
-        const { email } = req.body;
+const resetPassword = async (req, res) => {
+    const { email, password } = req.body;
 
-        const sql = "SELECT * FROM users WHERE email = ?";
-        const [rows] = await req.connection.query(sql, email);
+    const { salt, hashedPassword } = encryptPassword(password);
 
-        const user = rows[0];
-        if (user) {
-            res.status(StatusCodes.OK).json({ email });
-        } else {
-            throw new HttpError(StatusCodes.UNAUTHORIZED);
-        }
-        next();
-    } catch (error) {
-        next(error);
-    }
-};
+    const sql = "UPDATE users SET password = ?, salt = ? WHERE email = ?";
+    const values = [hashedPassword, salt, email];
+    const [result] = await req.connection.query(sql, values);
 
-const resetPassword = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
-
-        const { salt, hashedPassword } = encryptPassword(password);
-
-        const sql = "UPDATE users SET password = ?, salt = ? WHERE email = ?";
-        const values = [hashedPassword, salt, email];
-        const [result] = await req.connection.query(sql, values);
-
-        if (result.affectedRows) {
-            res.status(StatusCodes.OK).json(result);
-        } else {
-            throw new HttpError(StatusCodes.BAD_REQUEST);
-        }
-        next();
-    } catch (error) {
-        next(error);
+    if (result.affectedRows) {
+        res.status(StatusCodes.OK).json(result);
+    } else {
+        throw new HttpError(StatusCodes.BAD_REQUEST);
     }
 };
 
 module.exports = {
-    signUp,
-    logIn,
-    passwordResetRequest,
-    resetPassword
+    signUp: executeHandler(signUp),
+    logIn: executeHandler(logIn),
+    passwordResetRequest: executeHandler(passwordResetRequest),
+    resetPassword: executeHandler(resetPassword)
 };
