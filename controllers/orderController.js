@@ -1,6 +1,7 @@
 const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { executeHandler, transactionExecuteHandler } = require('../middlewares/handlerWrapper');
+const convertSnakeToCamel = require('../utils/responseFormatter');
 
 const submitOrder = async (req, res) => {
     const { items, delivery, totalQuantity, totalPrice, firstBookTitle } = req.body;
@@ -37,13 +38,13 @@ const getOrderList = async (req, res) => {
     const sql = `
         SELECT
             orders.id AS orderId,
-            ordered_at AS orderedAt,
+            ordered_at,
             address,
             recipient,
             contact,
-            book_title AS bookTitle,
-            total_quantity AS totalQuantity,
-            total_price AS totalPrice
+            book_title,
+            total_quantity,
+            total_price
         FROM orders
         LEFT JOIN delivery
         ON orders.delivery_id = delivery.id
@@ -51,7 +52,7 @@ const getOrderList = async (req, res) => {
     `;
     const [rows] = await req.connection.query(sql, req.decodedToken.uid);
 
-    res.status(StatusCodes.OK).json(rows);
+    res.status(StatusCodes.OK).json(convertSnakeToCamel(rows));
 };
 
 const getOrderDetails = async (req, res) => {
