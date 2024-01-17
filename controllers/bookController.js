@@ -1,3 +1,4 @@
+const pool = require('../db');
 const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { executeHandler } = require('../middlewares/handlerWrapper');
@@ -25,7 +26,7 @@ const getBooks = async (req, res) => {
         LIMIT ? OFFSET ?
     `;
     let values = categoryId ? [userId, categoryId, parseInt(limit), offset] : [userId, parseInt(limit), offset];
-    const [rows] = await req.connection.query(sql, values);
+    const [rows] = await pool.query(sql, values);
 
     let data = {};
     if (rows.length) {
@@ -36,7 +37,7 @@ const getBooks = async (req, res) => {
 
     sql = `SELECT COUNT(*) AS total FROM books ${whereClause}`;
     values = categoryId ? [categoryId] : [];
-    const [result] = await req.connection.query(sql, values);
+    const [result] = await pool.query(sql, values);
 
     data.pagination = {
         currentPage: parseInt(page),
@@ -61,7 +62,7 @@ const getBookById = async (req, res) => {
         WHERE books.id = ?
     `;
     const values = [userId, bookId];
-    const [rows] = await req.connection.query(sql, values);
+    const [rows] = await pool.query(sql, values);
 
     if (rows[0]) {
         res.status(StatusCodes.OK).json(convertSnakeToCamel(rows[0]));

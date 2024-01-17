@@ -10,10 +10,6 @@ class HttpError extends Error {
 }
 
 const errorHandler = (err, req, res, next) => {
-    if (req.connection) {
-        req.connection.release();
-    }
-
     console.error(`>> ${new Date().toLocaleString()}: ${err.stack}`);
 
     if (err instanceof HttpError) {

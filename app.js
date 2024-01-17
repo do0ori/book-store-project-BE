@@ -11,15 +11,10 @@ const likeRouter = require('./routes/likes');
 const cartRouter = require('./routes/carts');
 const orderRouter = require('./routes/orders');
 const {
-    getConnection,
-    releaseConnection,
-} = require('./middlewares/connectionPoolHandler');
-const {
     errorHandler
 } = require('./middlewares/errorHandler');
 
 app.use(express.json());
-app.use(getConnection);
 
 app.use('/users', userRouter);
 app.use('/books', bookRouter);
@@ -28,5 +23,4 @@ app.use('/likes', likeRouter);
 app.use('/cart', cartRouter);
 app.use('/orders', orderRouter);
 
-app.use(releaseConnection);
 app.use(errorHandler);

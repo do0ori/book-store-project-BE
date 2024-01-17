@@ -1,3 +1,4 @@
+const pool = require('../db');
 const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { executeHandler } = require('../middlewares/handlerWrapper');
@@ -26,7 +27,7 @@ const signUp = async (req, res) => {
 
     const sql = "INSERT INTO users (email, password, salt) VALUES (?, ?, ?)";
     const values = [email, hashedPassword, salt];
-    [result] = await req.connection.query(sql, values);
+    [result] = await pool.query(sql, values);
 
     res.status(StatusCodes.CREATED).json(result);
 };
@@ -35,7 +36,7 @@ const logIn = async (req, res) => {
     const { email, password } = req.body;
 
     const sql = "SELECT * FROM users WHERE email = ?";
-    const [rows] = await req.connection.query(sql, email);
+    const [rows] = await pool.query(sql, email);
 
     const loginUser = rows[0];
     const { hashedPassword } = encryptPassword(password, loginUser?.salt);
@@ -60,7 +61,7 @@ const passwordResetRequest = async (req, res) => {
     const { email } = req.body;
 
     const sql = "SELECT * FROM users WHERE email = ?";
-    const [rows] = await req.connection.query(sql, email);
+    const [rows] = await pool.query(sql, email);
 
     const user = rows[0];
     if (user) {
@@ -77,7 +78,7 @@ const resetPassword = async (req, res) => {
 
     const sql = "UPDATE users SET password = ?, salt = ? WHERE email = ?";
     const values = [hashedPassword, salt, email];
-    const [result] = await req.connection.query(sql, values);
+    const [result] = await pool.query(sql, values);
 
     if (result.affectedRows) {
         res.status(StatusCodes.OK).json(result);

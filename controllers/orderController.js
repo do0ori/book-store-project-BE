@@ -1,3 +1,4 @@
+const pool = require('../db');
 const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { executeHandler, transactionExecuteHandler } = require('../middlewares/handlerWrapper');
@@ -8,24 +9,24 @@ const submitOrder = async (req, res) => {
 
     let sql = "INSERT INTO delivery (address, recipient, contact) VALUES (?, ?, ?)";
     let values = [delivery.address, delivery.recipient, delivery.contact];
-    let [result] = await req.connection.query(sql, values);
+    let [result] = await pool.query(sql, values);
 
     const deliveryId = result.insertId;
 
     sql = "INSERT INTO orders (user_id, delivery_id, book_title, total_quantity, total_price) VALUES (?, ?, ?, ?, ?)";
     values = [req.decodedToken.uid, deliveryId, firstBookTitle, totalQuantity, totalPrice];
-    [result] = await req.connection.query(sql, values);
+    [result] = await pool.query(sql, values);
 
     const orderId = result.insertId;
 
     sql = "INSERT INTO ordered_book (order_id, book_id, quantity) VALUES ?";
     values = [];
     items.forEach((item) => values.push([orderId, item.bookId, item.quantity]));
-    [result] = await req.connection.query(sql, [values]);
+    [result] = await pool.query(sql, [values]);
 
     sql = "DELETE FROM cart WHERE item_id IN (?)";
     values = [items.map(item => item.cartItemId)];
-    [result] = await req.connection.query(sql, values);
+    [result] = await pool.query(sql, values);
 
     if (result.affectedRows) {
         res.status(StatusCodes.OK).json(result);
@@ -50,7 +51,7 @@ const getOrderList = async (req, res) => {
         ON orders.delivery_id = delivery.id
         WHERE user_id = ?
     `;
-    const [rows] = await req.connection.query(sql, req.decodedToken.uid);
+    const [rows] = await pool.query(sql, req.decodedToken.uid);
 
     res.status(StatusCodes.OK).json(convertSnakeToCamel(rows));
 };
@@ -70,7 +71,7 @@ const getOrderDetails = async (req, res) => {
         ON ordered_book.book_id = books.id
         WHERE order_id = ?
     `;
-    const [rows] = await req.connection.query(sql, orderId);
+    const [rows] = await pool.query(sql, orderId);
 
     if (rows.length) {
         res.status(StatusCodes.OK).json(rows);

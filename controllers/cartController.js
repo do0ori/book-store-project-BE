@@ -1,3 +1,4 @@
+const pool = require('../db');
 const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { executeHandler } = require('../middlewares/handlerWrapper');
@@ -8,7 +9,7 @@ const addToCart = async (req, res) => {
 
     const sql = "INSERT INTO cart (user_id, book_id, quantity) VALUES (?, ?, ?)";
     const values = [userId, bookId, quantity];
-    const [result] = await req.connection.query(sql, values);
+    const [result] = await pool.query(sql, values);
 
     res.status(StatusCodes.CREATED).json(result);
 };
@@ -34,7 +35,7 @@ const getCartItems = async (req, res) => {
         sql += "AND item_id IN (?)";
         values.push(selected);
     }
-    let [rows] = await req.connection.query(sql, values);
+    let [rows] = await pool.query(sql, values);
 
     res.status(StatusCodes.OK).json(rows);
 };
@@ -43,7 +44,7 @@ const removeFromCart = async (req, res) => {
     const { itemId } = req.params;
 
     const sql = "DELETE FROM cart WHERE item_id = ?";
-    const [result] = await req.connection.query(sql, itemId);
+    const [result] = await pool.query(sql, itemId);
 
     if (result.affectedRows) {
         res.status(StatusCodes.OK).json(result);
