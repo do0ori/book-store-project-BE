@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middlewares/tokenVerification');
-const validator = require('../middlewares/validation');
+const verifyToken = require('../middlewares/authorization.middleware');
+const validator = require('../middlewares/validation.middleware');
 const {
     getBooks,
     getBookById
-} = require('../controllers/bookController');
+} = require('../controllers/book.controller');
 
 router.use(verifyToken(authMode = 'soft'));
 router.get('/', validator.getBooks, getBooks);

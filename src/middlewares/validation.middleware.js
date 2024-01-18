@@ -1,5 +1,5 @@
 const { body, param, query, validationResult } = require('express-validator');
-const { HttpError } = require('../middlewares/errorHandler');
+const { HttpError } = require('./errorHandler.middleware');
 const { StatusCodes } = require('http-status-codes');
 
 /**
@@ -7,10 +7,12 @@ const { StatusCodes } = require('http-status-codes');
  */
 const checkValidationResult = (req, res, next) => {
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
         console.log(errors.array());
         return next(new HttpError(StatusCodes.BAD_REQUEST, "Request input validation fails."));
     }
+    
     next();
 }
 
