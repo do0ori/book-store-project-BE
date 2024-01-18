@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middlewares/tokenVerification');
-const validator = require('../middlewares/validation');
+const verifyToken = require('../middlewares/authorization.middleware');
+const validator = require('../middlewares/validation.middleware');
 const {
     submitOrder,
     getOrderList,
     getOrderDetails
-} = require('../controllers/orderController');
+} = require('../controllers/order.controller');
 
 router.use(verifyToken(authMode = 'hard'));
 router.post('/', validator.submitOrder, submitOrder);

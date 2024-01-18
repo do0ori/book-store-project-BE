@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
-const { HttpError } = require('./errorHandler');
-const { executeHandler } = require('../middlewares/handlerWrapper');
+const { HttpError } = require('./errorHandler.middleware');
+const { asyncHandlerWrapper } = require('./wrapper.middleware');
 require('dotenv').config();
 
 /**
@@ -14,7 +14,7 @@ const verifyToken = (authMode = 'hard') => {
         throw new Error(`Invalid authentication mode '${authMode}'. Allowed modes are ${allowedModes.join(', ')}.`);
     }
 
-    return executeHandler(async (req, res) => {
+    return asyncHandlerWrapper(async (req, res) => {
         // Authorization: Bearer <token>
         const authHeader = req.headers.authorization;
 

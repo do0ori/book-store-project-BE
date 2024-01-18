@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middlewares/tokenVerification');
-const validator = require('../middlewares/validation');
+const verifyToken = require('../middlewares/authorization.middleware');
+const validator = require('../middlewares/validation.middleware');
 const {
     addToCart,
     getCartItems,
     removeFromCart
-} = require('../controllers/cartController');
+} = require('../controllers/cart.controller');
 
 router.use(verifyToken(authMode = 'hard'));
 router.post('/', validator.addToCart, addToCart);

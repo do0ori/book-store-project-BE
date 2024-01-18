@@ -1,32 +1,29 @@
-const pool = require('../db');
-const { HttpError } = require('../middlewares/errorHandler');
 const { StatusCodes } = require('http-status-codes');
-const { executeHandler } = require('../middlewares/handlerWrapper');
-const convertSnakeToCamel = require('../utils/responseFormatter');
+const { HttpError } = require('../middlewares/errorHandler.middleware');
+const convertSnakeToCamel = require('../utils/responseFormatter.util');
 
-const getBooks = async (req, res) => {
-    const userId = req.decodedToken?.uid;
-    const { categoryId, recent, limit, page } = req.query;
-
+const getBooks = async (conn, userId, categoryId, recent, limit, page) => {
     const conditions = {
         category: categoryId ? "category_id = ?" : null,
         recent: recent === "true" ? "published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()" : null
     };
+
     const conditionClauses = Object.values(conditions).filter(Boolean);
     const whereClause = conditionClauses.length ? `WHERE ${conditionClauses.join(" AND ")}` : "";
 
     const offset = limit * (page - 1);
+
     let sql = `
-        SELECT
-            *,
-            (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
-            EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
-        FROM books
-        ${whereClause}
-        LIMIT ? OFFSET ?
-    `;
-    let values = categoryId ? [userId, categoryId, parseInt(limit), offset] : [userId, parseInt(limit), offset];
-    const [rows] = await pool.query(sql, values);
+            SELECT
+                *,
+                (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
+                EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+            FROM books
+            ${whereClause}
+            LIMIT ? OFFSET ?
+        `;
+    let values = categoryId ? [userId, categoryId, +limit, offset] : [userId, +limit, offset];
+    const [rows] = await conn.query(sql, values);
 
     let data = {};
     if (rows.length) {
@@ -37,19 +34,17 @@ const getBooks = async (req, res) => {
 
     sql = `SELECT COUNT(*) AS total FROM books ${whereClause}`;
     values = categoryId ? [categoryId] : [];
-    const [result] = await pool.query(sql, values);
+    const [result] = await conn.query(sql, values);
 
     data.pagination = {
-        currentPage: parseInt(page),
+        currentPage: +page,
         totalCount: result[0].total
-    }
-    res.status(StatusCodes.OK).json(convertSnakeToCamel(data));
+    };
+
+    return convertSnakeToCamel(data);
 };
 
-const getBookById = async (req, res) => {
-    const userId = req.decodedToken?.uid;
-    const { bookId } = req.params;
-
+const getBookById = async (conn, userId, bookId) => {
     const sql = `
         SELECT
             books.*,
@@ -62,16 +57,16 @@ const getBookById = async (req, res) => {
         WHERE books.id = ?
     `;
     const values = [userId, bookId];
-    const [rows] = await pool.query(sql, values);
+    const [rows] = await conn.query(sql, values);
 
     if (rows[0]) {
-        res.status(StatusCodes.OK).json(convertSnakeToCamel(rows[0]));
+        return convertSnakeToCamel(rows[0]);
     } else {
         throw new HttpError(StatusCodes.NOT_FOUND, "존재하지 않는 도서입니다.");
     }
 };
 
 module.exports = {
-    getBooks: executeHandler(getBooks),
-    getBookById: executeHandler(getBookById)
+    getBooks,
+    getBookById
 };
