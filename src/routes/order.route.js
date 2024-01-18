@@ -2,13 +2,11 @@ const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middlewares/authorization.middleware');
 const validator = require('../middlewares/validation.middleware');
-const {
-    addToLikes,
-    removeFromLikes
-} = require('../controllers/like.controller');
+const orderController = require('../controllers/order.controller');
 
 router.use(verifyToken(authMode = 'hard'));
-router.post('/:bookId', validator.addToLikes, addToLikes);
-router.delete('/:bookId', validator.removeFromLikes, removeFromLikes);
+router.post('/', validator.submitOrder, orderController.submitOrder);
+router.get('/', orderController.getOrderList);
+router.get('/:orderId', validator.getOrderDetails, orderController.getOrderDetails);
 
 module.exports = router;

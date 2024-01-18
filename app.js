@@ -3,12 +3,12 @@ const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 
-const userRouter = require('./src/routes/users');
-const bookRouter = require('./src/routes/books');
-const categoryRouter = require('./src/routes/category');
-const likeRouter = require('./src/routes/likes');
-const cartRouter = require('./src/routes/carts');
-const orderRouter = require('./src/routes/orders');
+const userRouter = require('./src/routes/user.route');
+const bookRouter = require('./src/routes/book.route');
+const categoryRouter = require('./src/routes/category.route');
+const likeRouter = require('./src/routes/like.route');
+const cartRouter = require('./src/routes/cart.route');
+const orderRouter = require('./src/routes/order.route');
 const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
 
 app.use(express.json());
