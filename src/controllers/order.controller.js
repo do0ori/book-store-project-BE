@@ -8,7 +8,7 @@ const submitOrder = async (req, res) => {
 
     const data = await orderService.submitOrder(req.conn, userId, items, delivery, totalQuantity, totalPrice, firstBookTitle);
 
-    res.status(StatusCodes.OK).json(data);
+    res.status(StatusCodes.CREATED).json(data);
 };
 
 const getOrderList = async (req, res) => {
@@ -22,7 +22,7 @@ const getOrderList = async (req, res) => {
 const getOrderDetails = async (req, res) => {
     const { orderId } = req.params;
 
-    const data = await orderService.getOrderDetails(orderId);
+    const data = await orderService.getOrderDetails(req.conn, orderId);
 
     res.status(StatusCodes.OK).json(data);
 };
