@@ -42,7 +42,7 @@ const removeFromCart = async (conn, itemId) => {
     if (result.affectedRows) {
         return result;
     } else {
-        throw new HttpError(StatusCodes.BAD_REQUEST);
+        throw new HttpError(StatusCodes.CONFLICT, "이미 처리된 요청입니다.");
     }
 };
 

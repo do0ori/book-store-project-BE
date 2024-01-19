@@ -17,7 +17,7 @@ const getBooks = async (conn, userId, categoryId, recent, limit, page) => {
             SELECT
                 *,
                 (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
-                EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+                EXISTS (SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
             FROM books
             ${whereClause}
             LIMIT ? OFFSET ?
@@ -50,7 +50,7 @@ const getBookById = async (conn, userId, bookId) => {
             books.*,
             category.name AS categoryName,
             (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
-            EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
+            EXISTS (SELECT 1 FROM likes WHERE user_id = ? AND book_id = books.id) AS liked
         FROM books
         LEFT JOIN category
         ON books.category_id = category.id

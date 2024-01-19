@@ -1,13 +1,20 @@
 const { StatusCodes } = require('http-status-codes');
 const { HttpError } = require('../middlewares/errorHandler.middleware');
 const { encryptPassword, issueToken } = require('../utils/authentication.util');
+const { isUserExist } = require('../utils/existanceCheck.util');
 
 const signUp = async (conn, email, hashedPassword, salt) => {
-    const sql = "INSERT INTO users (email, password, salt) VALUES (?, ?, ?)";
-    const values = [email, hashedPassword, salt];
-    [result] = await conn.query(sql, values);
+    const exists = await isUserExist(conn, email);
 
-    return result;
+    if (!exists) {
+        const sql = "INSERT INTO users (email, password, salt) VALUES (?, ?, ?)";
+        const values = [email, hashedPassword, salt];
+        const [result] = await conn.query(sql, values);
+
+        return result;
+    } else {
+        throw new HttpError(StatusCodes.CONFLICT, `${email}은 이미 가입된 계정입니다.`)
+    }
 };
 
 const logIn = async (conn, email, password) => {
@@ -25,12 +32,9 @@ const logIn = async (conn, email, password) => {
 };
 
 const passwordResetRequest = async (conn, email) => {
-    const sql = "SELECT * FROM users WHERE email = ?";
-    const [rows] = await conn.query(sql, email);
+    const exists = await isUserExist(conn, email);
 
-    const user = rows[0];
-
-    if (user) {
+    if (exists) {
         return { email };
     } else {
         throw new HttpError(StatusCodes.UNAUTHORIZED);
