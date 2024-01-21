@@ -4,6 +4,7 @@ require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const port = process.env.PORT || 3000;
 
+const tokenRouter = require('./src/routes/token.route');
 const userRouter = require('./src/routes/user.route');
 const bookRouter = require('./src/routes/book.route');
 const categoryRouter = require('./src/routes/category.route');
@@ -15,6 +16,7 @@ const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
 app.use(cookieParser());
 app.use(express.json());
 
+app.use('/api/refresh', tokenRouter);
 app.use('/api/users', userRouter);
 app.use('/api/books', bookRouter);
 app.use('/api/category', categoryRouter);
