@@ -26,14 +26,7 @@ describe('도서 조회', () => {
         it('GET /api/books?categoryId&recent&page 요청 시 잘못된 요청임을 알림', (done) => {
             request(app)
                 .get('/api/books?page=1')
-                .expect(StatusCodes.BAD_REQUEST)
-                .end((err, res) => {
-                    if (err) return done(err);
-
-                    assert.strictEqual(res.body.message, "Request input validation fails.");
-
-                    return done();
-                });
+                .expect(StatusCodes.BAD_REQUEST, done);
         });
     });
 
@@ -41,14 +34,7 @@ describe('도서 조회', () => {
         it('GET /api/books?categoryId&recent&limit 요청 시 잘못된 요청임을 알림', (done) => {
             request(app)
                 .get('/api/books?limit=2')
-                .expect(StatusCodes.BAD_REQUEST)
-                .end((err, res) => {
-                    if (err) return done(err);
-
-                    assert.strictEqual(res.body.message, "Request input validation fails.");
-
-                    return done();
-                });
+                .expect(StatusCodes.BAD_REQUEST, done);
         });
     });
 

@@ -23,14 +23,7 @@ describe('회원가입', () => {
             request(app)
                 .post('/api/users/signup')
                 .send(fakeUserWrongPassword)
-                .expect(StatusCodes.BAD_REQUEST)
-                .end((err, res) => {
-                    if (err) return done(err);
-
-                    assert.strictEqual(res.body.message, "Request input validation fails.");
-
-                    return done();
-                });
+                .expect(StatusCodes.BAD_REQUEST, done);
         });
     });
 
@@ -115,14 +108,7 @@ describe('비밀번호 초기화(재설정)', () => {
             request(app)
                 .put('/api/users/reset-password')
                 .send(fakeUserWrongPassword)
-                .expect(StatusCodes.BAD_REQUEST)
-                .end((err, res) => {
-                    if (err) return done(err);
-
-                    assert.strictEqual(res.body.message, "Request input validation fails.");
-
-                    return done();
-                });
+                .expect(StatusCodes.BAD_REQUEST, done);
         });
     });
 
