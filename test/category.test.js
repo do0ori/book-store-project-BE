@@ -4,9 +4,9 @@ const app = require('../app');
 const { StatusCodes } = require('http-status-codes');
 
 describe('카테고리 전체 조회', () => {
-    it('GET /category 요청 시 카테고리 전체 목록 반환', (done) => {
+    it('GET /api/category 요청 시 카테고리 전체 목록 반환', (done) => {
         request(app)
-            .get('/category')
+            .get('/api/category')
             .expect(StatusCodes.OK)
             .end((err, res) => {
                 if (err) return done(err);

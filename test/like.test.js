@@ -7,9 +7,9 @@ const token = process.env.TEST_TOKEN
 
 describe('좋아요 추가', () => {
     describe('정상 요청', () => {
-        it('POST /likes/{bookId} 요청 시 좋아요 record 추가', (done) => {
+        it('POST /api/likes/{bookId} 요청 시 좋아요 record 추가', (done) => {
             request(app)
-                .post('/likes/1')
+                .post('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
                 .expect(StatusCodes.CREATED)
                 .end((err, res) => {
@@ -23,9 +23,9 @@ describe('좋아요 추가', () => {
     });
 
     describe('중복된 요청', () => {
-        it('POST /likes/{bookId} 요청 시 이미 처리된 요청임을 알림', (done) => {
+        it('POST /api/likes/{bookId} 요청 시 이미 처리된 요청임을 알림', (done) => {
             request(app)
-                .post('/likes/1')
+                .post('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
                 .expect(StatusCodes.CONFLICT)
                 .end((err, res) => {
@@ -41,9 +41,9 @@ describe('좋아요 추가', () => {
 
 describe('좋아요 취소', () => {
     describe('정상 요청', () => {
-        it('DELETE /likes/{bookId} 요청 시 좋아요 record 삭제', (done) => {
+        it('DELETE /api/likes/{bookId} 요청 시 좋아요 record 삭제', (done) => {
             request(app)
-                .delete('/likes/1')
+                .delete('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
                 .expect(StatusCodes.OK)
                 .end((err, res) => {
@@ -57,9 +57,9 @@ describe('좋아요 취소', () => {
     });
 
     describe('중복된 요청', () => {
-        it('DELETE /likes/{bookId} 요청 시 이미 처리된 요청임을 알림', (done) => {
+        it('DELETE /api/likes/{bookId} 요청 시 이미 처리된 요청임을 알림', (done) => {
             request(app)
-                .delete('/likes/1')
+                .delete('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
                 .expect(StatusCodes.CONFLICT)
                 .end((err, res) => {
