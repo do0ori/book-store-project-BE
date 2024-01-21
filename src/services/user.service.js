@@ -2,6 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const { HttpError } = require('../middlewares/errorHandler.middleware');
 const { encryptPassword, issueToken } = require('../utils/authentication.util');
 const { isUserExist } = require('../utils/existanceCheck.util');
+const tokenService = require('./token.service');
 
 const signUp = async (conn, email, hashedPassword, salt) => {
     const exists = await isUserExist(conn, email);
@@ -18,14 +19,19 @@ const signUp = async (conn, email, hashedPassword, salt) => {
 };
 
 const logIn = async (conn, email, password) => {
-    const sql = "SELECT * FROM users WHERE email = ?";
+    let sql = "SELECT * FROM users WHERE email = ?";
     const [rows] = await conn.query(sql, email);
 
     const loginUser = rows[0];
     const { hashedPassword } = encryptPassword(password, loginUser?.salt);
 
     if (loginUser && loginUser.password === hashedPassword) {
-        return issueToken(loginUser);
+        const accessToken = issueToken(loginUser, 'access');
+        const refreshToken = issueToken(loginUser, 'refresh');
+
+        await tokenService.updateToken(conn, loginUser.id, refreshToken);
+
+        return { accessToken, refreshToken };
     } else {
         throw new HttpError(StatusCodes.UNAUTHORIZED);
     }
@@ -53,9 +59,14 @@ const resetPassword = async (conn, email, salt, hashedPassword) => {
     }
 };
 
+const logOut = async (conn, userId) => {
+    return await tokenService.removeToken(conn, userId);
+};
+
 module.exports = {
     signUp,
     logIn,
     passwordResetRequest,
-    resetPassword
+    resetPassword,
+    logOut
 };

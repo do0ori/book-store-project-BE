@@ -7,7 +7,7 @@
 const isUserExist = async (conn, email) => {
     const sql = "SELECT EXISTS (SELECT 1 FROM users WHERE email = ?) AS exist";
     const [result] = await conn.query(sql, email);
-    
+
     return result[0].exist === 1;
 };
 
@@ -26,7 +26,21 @@ const isLikeExist = async (conn, userId, bookId) => {
     return result[0].exist === 1;
 };
 
+/**
+ * Checks whether a token record exists for a given user.
+ * @param {Object} conn - The database connection object.
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the token record exists (true) or not (false).
+ */
+const isTokenExist = async (conn, userId) => {
+    const sql = "SELECT EXISTS (SELECT 1 FROM token WHERE user_id = ?) AS exist";
+    const [result] = await conn.query(sql, userId);
+
+    return result[0].exist === 1;
+};
+
 module.exports = {
     isUserExist,
-    isLikeExist
+    isLikeExist,
+    isTokenExist
 };
