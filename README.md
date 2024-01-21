@@ -18,6 +18,8 @@
 ## 🔄️API Design
 [🔗API 명세 바로가기](https://do0ori.notion.site/0787440aa79f4091902a0d4eadb5c009?v=1f96b9f02a704ea88a75567746da1499&pvs=4)
 
+- 🔑토큰 API
+    - access token 재발급 요청
 - 👤회원 API
     - 회원가입
     - 로그인
