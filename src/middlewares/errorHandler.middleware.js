@@ -12,9 +12,9 @@ class HttpError extends Error {
 const errorHandler = (err, req, res, next) => {
     console.error(`>> ${new Date().toLocaleString()}: ${err.stack}`);
 
-    if (err instanceof HttpError) {
+    if (err.name === "HttpError") {
         res.status(err.statusCode).json({ message: err.message });
-    } else if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError || err instanceof NotBeforeError) {
+    } else if (err.name === "TokenExpiredError" || err.name === "JsonWebTokenError" || err.name === "NotBeforeError") {
         res.status(StatusCodes.UNAUTHORIZED).send({ message: err.message });
     } else if (err.code?.startsWith("ER_")) {
         res.status(StatusCodes.BAD_REQUEST).send({ message: "Send valid inputs." })

@@ -26,8 +26,8 @@ const logIn = async (conn, email, password) => {
     const { hashedPassword } = encryptPassword(password, loginUser?.salt);
 
     if (loginUser && loginUser.password === hashedPassword) {
-        const accessToken = issueToken(loginUser, 'access');
-        const refreshToken = issueToken(loginUser, 'refresh');
+        const accessToken = issueToken(loginUser.id, 'access');
+        const refreshToken = issueToken(loginUser.id, 'refresh');
 
         await tokenService.updateToken(conn, loginUser.id, refreshToken);
 
