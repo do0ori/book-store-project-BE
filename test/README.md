@@ -82,7 +82,7 @@ npm test
       ✔ POST /api/users/signup 요청 시 이미 가입된 계정임을 알림
 
   로그인
-    ✔ POST /api/users/login 요청 시 JWT 반환
+    ✔ POST /api/users/login 요청 시 access & refresh token 반환
 
   비밀번호 초기화(재설정) 요청
     정상 요청
@@ -100,8 +100,8 @@ npm test
     정상 요청
       ✔ POST /api/users/logout 요청 시 refreshToken cookie 삭제
     중복된 요청
-      ✔ POST /api/users/logout 요청 시 이미 처리된 요청임을 알림
+      ✔ POST /api/users/logout 요청 시 이미 refresh token이 삭제되었으므로 재로그인 안내
 
 
-  31 passing (337ms)
+  31 passing (284ms)
 ```

@@ -4,6 +4,7 @@ const app = require('../app');
 const { StatusCodes } = require('http-status-codes');
 const { faker } = require('@faker-js/faker');
 let accessToken;
+let refreshToken;
 
 const sex = faker.person.sexType();
 const firstName = faker.person.firstName(sex);
@@ -54,7 +55,7 @@ describe('회원가입', () => {
 });
 
 describe('로그인', () => {
-    it('POST /api/users/login 요청 시 JWT 반환', (done) => {
+    it('POST /api/users/login 요청 시 access & refresh token 반환', (done) => {
         request(app)
             .post('/api/users/login')
             .send(fakeUser)
@@ -69,6 +70,7 @@ describe('로그인', () => {
                 assert(res.body.hasOwnProperty('accessToken'));
 
                 accessToken = res.body.accessToken;
+                refreshToken = setCookie.split(';')[0];
 
                 return done();
             });
@@ -128,6 +130,7 @@ describe('로그아웃', () => {
             request(app)
                 .post('/api/users/logout')
                 .set("Authorization", `Bearer ${accessToken}`)
+                .set("Cookie", refreshToken)
                 .expect(StatusCodes.OK)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -142,15 +145,16 @@ describe('로그아웃', () => {
     });
 
     describe('중복된 요청', () => {
-        it('POST /api/users/logout 요청 시 이미 처리된 요청임을 알림', (done) => {
+        it('POST /api/users/logout 요청 시 이미 refresh token이 삭제되었으므로 재로그인 안내', (done) => {
             request(app)
                 .post('/api/users/logout')
                 .set("Authorization", `Bearer ${accessToken}`)
-                .expect(StatusCodes.CONFLICT)
+                .set("Cookie", refreshToken)
+                .expect(StatusCodes.UNAUTHORIZED)
                 .end((err, res) => {
                     if (err) return done(err);
     
-                    assert.strictEqual(res.body.message, "이미 처리된 요청입니다.");
+                    assert.strictEqual(res.body.message, "세션이 만료되었습니다. 다시 로그인해주세요.");
     
                     return done();
                 });

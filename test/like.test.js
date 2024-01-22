@@ -11,6 +11,7 @@ describe('좋아요 추가', () => {
             request(app)
                 .post('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.CREATED)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -27,6 +28,7 @@ describe('좋아요 추가', () => {
             request(app)
                 .post('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.CONFLICT)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -45,6 +47,7 @@ describe('좋아요 취소', () => {
             request(app)
                 .delete('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.OK)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -61,6 +64,7 @@ describe('좋아요 취소', () => {
             request(app)
                 .delete('/api/likes/1')
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.CONFLICT)
                 .end((err, res) => {
                     if (err) return done(err);

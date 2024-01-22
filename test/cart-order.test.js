@@ -15,6 +15,7 @@ describe('장바구니 담기', () => {
         request(app)
             .post('/api/cart')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({ bookId: 4, quantity: 1 })
             .expect(StatusCodes.CREATED)
             .end((err, res) => {
@@ -31,6 +32,7 @@ describe('장바구니 담기', () => {
         request(app)
             .post('/api/cart')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({ bookId: 4, quantity: 1 })
             .expect(StatusCodes.CREATED)
             .end((err, res) => {
@@ -49,6 +51,7 @@ describe('(선택한) 장바구니 목록 조회', () => {
         request(app)
             .get('/api/cart')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({ selected: [insertId] })
             .expect(StatusCodes.OK)
             .end((err, res) => {
@@ -67,6 +70,7 @@ describe('장바구니 삭제', () => {
             request(app)
                 .delete(`/api/cart/${insertId}`)
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.OK)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -83,6 +87,7 @@ describe('장바구니 삭제', () => {
             request(app)
                 .delete(`/api/cart/${insertId}`)
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.CONFLICT)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -111,6 +116,7 @@ describe('결제 주문하기', () => {
         request(app)
             .post('/api/orders')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({
                 items: [{ cartItemId: itemId, bookId: 4, quantity: 1 }],
                 delivery: fakeUserDelivery,
@@ -127,6 +133,7 @@ describe('주문 목록(내역) 조회', () => {
         request(app)
             .get('/api/orders')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .expect(StatusCodes.OK)
             .end((err, res) => {
                 if (err) return done(err);
@@ -145,6 +152,7 @@ describe('주문 상세 상품 조회', () => {
         request(app)
             .get(`/api/orders/${orderId}`)
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .expect(StatusCodes.OK)
             .end((err, res) => {
                 if (err) return done(err);
