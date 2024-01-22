@@ -57,8 +57,8 @@ const checkString = (location, field) => location(field).exists().isString();
  * Grouped Validation Chains
  */
 const tokenFieldValidation = [
-    header('Authorization').exists().withMessage('Authorization header is required'),
-    cookie('refreshToken').exists().withMessage('Refresh token is required'),
+    header('Authorization').exists().withMessage('Authorization header is required').isString(),
+    cookie('refreshToken').exists().withMessage('Refresh token is required').isString(),
     checkValidationResult
 ];
 

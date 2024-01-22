@@ -36,7 +36,6 @@ const isValidRefreshToken = async (conn, refreshToken, userId) => {
 
         return true;
     } catch (error) {
-        console.log(error.stack);
         return false;
     }
 };
