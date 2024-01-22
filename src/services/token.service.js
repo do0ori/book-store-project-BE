@@ -63,19 +63,13 @@ const updateToken = async (conn, userId, refreshToken) => {
 };
 
 const removeToken = async (conn, userId) => {
-    const exists = await isTokenExist(conn, userId);
+    const sql = "DELETE FROM token WHERE user_id = ?";
+    const [result] = await conn.query(sql, userId);
 
-    if (exists) {
-        const sql = "DELETE FROM token WHERE user_id = ?";
-        const [result] = await conn.query(sql, userId);
-
-        if (result.affectedRows) {
-            return result;
-        } else {
-            throw new HttpError(StatusCodes.BAD_REQUEST);
-        }
+    if (result.affectedRows) {
+        return result;
     } else {
-        throw new HttpError(StatusCodes.CONFLICT, "이미 처리된 요청입니다.");
+        throw new HttpError(StatusCodes.BAD_REQUEST);
     }
 };
 
