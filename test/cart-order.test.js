@@ -11,10 +11,11 @@ let insertId;
 
 // cart test
 describe('장바구니 담기', () => {
-    it('POST /cart 요청 시 장바구니 record 추가', (done) => {
+    it('POST /api/cart 요청 시 장바구니 record 추가', (done) => {
         request(app)
-            .post('/cart')
+            .post('/api/cart')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({ bookId: 4, quantity: 1 })
             .expect(StatusCodes.CREATED)
             .end((err, res) => {
@@ -27,10 +28,11 @@ describe('장바구니 담기', () => {
             });
     });
 
-    it('POST /cart 요청 시 같은 item도 따로 장바구니 record 추가', (done) => {
+    it('POST /api/cart 요청 시 같은 item도 따로 장바구니 record 추가', (done) => {
         request(app)
-            .post('/cart')
+            .post('/api/cart')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({ bookId: 4, quantity: 1 })
             .expect(StatusCodes.CREATED)
             .end((err, res) => {
@@ -45,10 +47,11 @@ describe('장바구니 담기', () => {
 });
 
 describe('(선택한) 장바구니 목록 조회', () => {
-    it('GET /cart 요청 시 장바구니 목록 반환', (done) => {
+    it('GET /api/cart 요청 시 장바구니 목록 반환', (done) => {
         request(app)
-            .get('/cart')
+            .get('/api/cart')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({ selected: [insertId] })
             .expect(StatusCodes.OK)
             .end((err, res) => {
@@ -63,10 +66,11 @@ describe('(선택한) 장바구니 목록 조회', () => {
 
 describe('장바구니 삭제', () => {
     describe('정상 요청', () => {
-        it('DELETE /cart/{itemId} 요청 시 해당 아이템 record 삭제', (done) => {
+        it('DELETE /api/cart/{itemId} 요청 시 해당 아이템 record 삭제', (done) => {
             request(app)
-                .delete(`/cart/${insertId}`)
+                .delete(`/api/cart/${insertId}`)
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.OK)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -79,10 +83,11 @@ describe('장바구니 삭제', () => {
     });
 
     describe('중복된 요청', () => {
-        it('DELETE /cart/{itemId} 요청 시 이미 처리된 요청임을 알림', (done) => {
+        it('DELETE /api/cart/{itemId} 요청 시 이미 처리된 요청임을 알림', (done) => {
             request(app)
-                .delete(`/cart/${insertId}`)
+                .delete(`/api/cart/${insertId}`)
                 .set("Authorization", `Bearer ${token}`)
+                .set("Cookie", `refreshToken=${token}`)
                 .expect(StatusCodes.CONFLICT)
                 .end((err, res) => {
                     if (err) return done(err);
@@ -107,10 +112,11 @@ let orderId;
 
 // order test
 describe('결제 주문하기', () => {
-    it('POST /orders 요청 시 주문 transaction 실행', (done) => {
+    it('POST /api/orders 요청 시 주문 transaction 실행', (done) => {
         request(app)
-            .post('/orders')
+            .post('/api/orders')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .send({
                 items: [{ cartItemId: itemId, bookId: 4, quantity: 1 }],
                 delivery: fakeUserDelivery,
@@ -123,10 +129,11 @@ describe('결제 주문하기', () => {
 });
 
 describe('주문 목록(내역) 조회', () => {
-    it('GET /orders 요청 시 장바구니 목록 반환', (done) => {
+    it('GET /api/orders 요청 시 장바구니 목록 반환', (done) => {
         request(app)
-            .get('/orders')
+            .get('/api/orders')
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .expect(StatusCodes.OK)
             .end((err, res) => {
                 if (err) return done(err);
@@ -141,10 +148,11 @@ describe('주문 목록(내역) 조회', () => {
 });
 
 describe('주문 상세 상품 조회', () => {
-    it('GET /orders/{orderId} 요청 시 이미 처리된 요청임을 알림', (done) => {
+    it('GET /api/orders/{orderId} 요청 시 이미 처리된 요청임을 알림', (done) => {
         request(app)
-            .get(`/orders/${orderId}`)
+            .get(`/api/orders/${orderId}`)
             .set("Authorization", `Bearer ${token}`)
+            .set("Cookie", `refreshToken=${token}`)
             .expect(StatusCodes.OK)
             .end((err, res) => {
                 if (err) return done(err);

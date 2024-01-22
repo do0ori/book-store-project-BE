@@ -22,13 +22,31 @@ const encryptPassword = (rawPassword, salt = null) => {
     return { salt, hashedPassword };
 };
 
-const issueToken = (loginUser) => {
+/**
+ * Generates a JSON Web Token (JWT) for the specified user and token type.
+ *
+ * @param {number} userId - The user ID.
+ * @param {string} [tokenType='access'] - The type of token to be generated ('access' or 'refresh').
+ * @returns {string} - The generated JWT.
+ *
+ * @throws {Error} Will throw an error if there is an issue with JWT signing.
+ *
+ * @example
+ * const accessToken = issueToken(userId, 'access');
+ * const refreshToken = issueToken(userId, 'refresh');
+ */
+const issueToken = (userId, tokenType = 'access') => {
+    const tokenLifeTime = {
+        access: process.env.ACCESS_TOKEN_LIFETIME,
+        refresh: process.env.REFRESH_TOKEN_LIFETIME
+    };
+
     const payload = {
-        userId: loginUser.id
+        userId
     };
 
     const options = {
-        expiresIn: process.env.TOKEN_LIFETIME,
+        expiresIn: tokenLifeTime[tokenType],
         issuer: process.env.ISSUER
     };
 

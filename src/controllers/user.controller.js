@@ -15,10 +15,10 @@ const signUp = async (req, res) => {
 const logIn = async (req, res) => {
     const { email, password } = req.body;
 
-    const token = await userService.logIn(req.conn, email, password);
+    const { accessToken, refreshToken } = await userService.logIn(req.conn, email, password);
 
-    res.cookie("token", token, { httpOnly: true });
-    res.status(StatusCodes.OK).end();
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'Strict' });
+    res.status(StatusCodes.OK).json({ accessToken });
 };
 
 const passwordResetRequest = async (req, res) => {
@@ -38,9 +38,19 @@ const resetPassword = async (req, res) => {
     res.status(StatusCodes.OK).json(data);
 };
 
+const logOut = async (req, res) => {
+    const userId = req.decodedToken.userId;
+
+    const data = await userService.logOut(req.conn, userId);
+
+    res.clearCookie('refreshToken');
+    res.status(StatusCodes.OK).json(data);
+};
+
 module.exports = {
     signUp: asyncHandlerWrapper(signUp),
     logIn: asyncHandlerWrapper(logIn),
     passwordResetRequest: asyncHandlerWrapper(passwordResetRequest),
-    resetPassword: asyncHandlerWrapper(resetPassword)
+    resetPassword: asyncHandlerWrapper(resetPassword),
+    logOut: asyncHandlerWrapper(logOut)
 };

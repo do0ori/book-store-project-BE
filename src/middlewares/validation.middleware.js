@@ -1,4 +1,4 @@
-const { body, param, query, validationResult } = require('express-validator');
+const { body, param, query, header, cookie, validationResult } = require('express-validator');
 const { HttpError } = require('./errorHandler.middleware');
 const { StatusCodes } = require('http-status-codes');
 
@@ -7,10 +7,17 @@ const { StatusCodes } = require('http-status-codes');
  */
 const checkValidationResult = (req, res, next) => {
     const errors = validationResult(req);
+    const errorMessages = [];
 
-    if (!errors.isEmpty()) {
-        console.log(errors.array());
-        return next(new HttpError(StatusCodes.BAD_REQUEST, "Request input validation fails."));
+    errors.array().forEach(error => {
+        if (!errorMessages.includes(error.msg)) {
+            errorMessages.push(error.msg);
+        }
+    });
+    
+    if (errorMessages.length) {
+        const errorMessage = errorMessages.join(', ');
+        return next(new HttpError(StatusCodes.BAD_REQUEST, errorMessage));
     }
     
     next();
@@ -49,6 +56,12 @@ const checkString = (location, field) => location(field).exists().isString();
 /*
  * Grouped Validation Chains
  */
+const tokenFieldValidation = [
+    header('Authorization').exists().withMessage('Authorization header is required').isString(),
+    cookie('refreshToken').exists().withMessage('Refresh token is required').isString(),
+    checkValidationResult
+];
+
 const emailPasswordValidation = [
     checkEmail(body, 'email'),
     checkPassword(body, 'password', 8),
@@ -107,6 +120,8 @@ const orderIdValidation = [
  * Binding request handler to corresponding validator
  */
 const validator = {
+    refreshToken: tokenFieldValidation,
+
     signUp: emailPasswordValidation,
     logIn: emailPasswordValidation,
     passwordResetRequest: emailValidation,

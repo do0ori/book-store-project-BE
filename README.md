@@ -13,15 +13,19 @@
 - user에 name, salt, created_at 추가
 - book의 liked column 삭제 → 도서 조회 시 query로 like table에서 계산해서 반환
 - delivery Table을 만들어서 delivery 정보를 따로 저장
+- user_id와 refresh_token을 저장하는 token table 생성
 
 ## 🔄️API Design
 [🔗API 명세 바로가기](https://do0ori.notion.site/0787440aa79f4091902a0d4eadb5c009?v=1f96b9f02a704ea88a75567746da1499&pvs=4)
 
+- 🔑토큰 API
+    - access token 재발급 요청
 - 👤회원 API
     - 회원가입
     - 로그인
     - 비밀번호 초기화 요청
     - 비밀번호 초기화
+    - 로그아웃
 - 📖도서 API
     - 도서 조회
     - 개별 도서 조회
