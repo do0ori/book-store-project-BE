@@ -1,8 +1,20 @@
 const { StatusCodes } = require('http-status-codes');
 const { HttpError } = require('../middlewares/errorHandler.middleware');
 const { encryptPassword, issueToken } = require('../utils/authentication.util');
-const { isUserExist } = require('../utils/existanceCheck.util');
 const tokenService = require('./token.service');
+
+/**
+ * Checks whether a user record exists for a given email address.
+ * @param {Object} conn - The database connection object.
+ * @param {string} email - The email address of the user.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the user record exists (true) or not (false).
+ */
+const isUserExist = async (conn, email) => {
+    const sql = "SELECT EXISTS (SELECT 1 FROM users WHERE email = ?) AS exist";
+    const [result] = await conn.query(sql, email);
+
+    return result[0].exist === 1;
+};
 
 const signUp = async (conn, email, hashedPassword, salt) => {
     const exists = await isUserExist(conn, email);
@@ -64,6 +76,7 @@ const logOut = async (conn, userId) => {
 };
 
 module.exports = {
+    isUserExist,
     signUp,
     logIn,
     passwordResetRequest,

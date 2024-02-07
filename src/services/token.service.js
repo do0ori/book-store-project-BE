@@ -1,8 +1,20 @@
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
 const { HttpError } = require('../middlewares/errorHandler.middleware');
-const { isTokenExist } = require('../utils/existanceCheck.util');
 require('dotenv').config();
+
+/**
+ * Checks whether a token record exists for a given user.
+ * @param {Object} conn - The database connection object.
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the token record exists (true) or not (false).
+ */
+const isTokenExist = async (conn, userId) => {
+    const sql = "SELECT EXISTS (SELECT 1 FROM token WHERE user_id = ?) AS exist";
+    const [result] = await conn.query(sql, userId);
+
+    return result[0].exist === 1;
+};
 
 const getToken = async (conn, userId) => {
     const exists = await isTokenExist(conn, userId);
@@ -74,6 +86,7 @@ const removeToken = async (conn, userId) => {
 };
 
 module.exports = {
+    isTokenExist,
     isValidRefreshToken,
     updateToken,
     removeToken
