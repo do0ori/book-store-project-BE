@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const port = process.env.PORT || 3000;
 
 const tokenRouter = require('./src/routes/token.route');
@@ -13,6 +14,10 @@ const cartRouter = require('./src/routes/cart.route');
 const orderRouter = require('./src/routes/order.route');
 const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(cookieParser());
 app.use(express.json());
 
