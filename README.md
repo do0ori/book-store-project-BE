@@ -1,5 +1,5 @@
 # 📖Book Store
-## 🔄️ERD (Entity Relationship Diagram)
+## 🎨ERD (Entity Relationship Diagram)
 
 [🔗강의 dbdigram ERD 바로가기](https://dbdiagram.io/d/songa-Book-Shop-ERD-658e846789dea62799b88dc3)
 
@@ -15,7 +15,7 @@
 - delivery Table을 만들어서 delivery 정보를 따로 저장
 - user_id와 refresh_token을 저장하는 token table 생성
 
-## 🔄️API Design
+## 🖋️API Design
 [🔗API 명세 바로가기](https://do0ori.notion.site/0787440aa79f4091902a0d4eadb5c009?v=1f96b9f02a704ea88a75567746da1499&pvs=4)
 
 - 🔑토큰 API
